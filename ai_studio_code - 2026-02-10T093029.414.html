@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI로 웹 수업자료 만들기 연수</title>
+    <!-- 폰트: 가독성이 좋은 Pretendard/Noto Sans 계열 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 설정 */
+        :root {
+            --primary-color: #4A90E2; /* 신뢰감 있는 블루 */
+            --secondary-color: #50E3C2; /* 산뜻한 민트 */
+            --accent-color: #FF6B6B; /* 포인트 컬러 */
+            --bg-color: #F0F4F8;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* 헤더 섹션 */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: var(--white);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 목표 섹션 */
+        .goal-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 2px solid var(--secondary-color);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.8s forwards;
+        }
+
+        .goal-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        .goal-content {
+            font-size: 1.3rem;
+            font-weight: 400;
+        }
+
+        /* 커리큘럼 타임라인 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        /* 중앙 선 */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #ddd;
+            border-radius: 2px;
+        }
+
+        @media (min-width: 768px) {
+            .timeline::before {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* 세션 카드 */
+        .session-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0; /* 스크롤 애니메이션용 */
+            transform: translateY(30px);
+        }
+
+        .session-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .session-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(74, 144, 226, 0.2);
+        }
+
+        /* 타임라인 점 */
+        .session-badge {
+            position: absolute;
+            top: 20px;
+            left: -43px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 0 0 5px var(--bg-color);
+            z-index: 1;
+        }
+
+        @media (min-width: 768px) {
+            .session-card {
+                width: 45%;
+            }
+            .session-card:nth-child(odd) {
+                margin-left: auto;
+            }
+            .session-card:nth-child(even) .session-badge {
+                left: auto;
+                right: -43px;
+            }
+             .session-card:nth-child(odd) .session-badge {
+                left: -43px;
+            }
+            /* 데스크탑에서 뱃지 위치 조정 */
+            .session-card:nth-child(odd) .session-badge {
+                 left: -13.5%; /* 근사치 조정 */
+            }
+            .session-card:nth-child(even) .session-badge {
+                 right: -13.5%;
+            }
+             /* 정확한 중앙 배치를 위한 미디어쿼리 재조정 */
+             .timeline::before { left: 50%; }
+             .session-card:nth-child(odd) .session-badge { left: -65px; }
+             .session-card:nth-child(even) .session-badge { right: -65px; left: auto; }
+        }
+        
+        /* 모바일 최적화 수정 */
+        @media (min-width: 768px) {
+             .session-card:nth-child(odd) .session-badge { left: -14.5%; } /* 카드 너비 기준 위치 */
+             .session-card:nth-child(even) .session-badge { right: -14.5%; left: auto; }
+             /* 부모 relative 해제하고 구조 변경이 복잡하므로 간단히 CSS로 처리 */
+             .timeline::before { left: 50%; transform: translateX(-50%); }
+             .session-card { width: 46%; margin: 20px 0; }
+             .session-card:nth-child(odd) { margin-left: 54%; }
+             .session-card:nth-child(even) { margin-right: 54%; }
+             
+             .session-card:nth-child(odd) .session-badge { left: -56px; right: auto; }
+             .session-card:nth-child(even) .session-badge { right: -56px; left: auto; }
+        }
+
+        .session-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topic-list {
+            list-style: none;
+        }
+
+        .topic-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topic-item:hover {
+            background-color: #e3f2fd;
+        }
+
+        .topic-text {
+            font-weight: 500;
+        }
+        
+        .topic-icon {
+            font-size: 1.2rem;
+        }
+
+        /* 툴팁/설명 효과 (간단한 인터랙션) */
+        .check-icon {
+            opacity: 0;
+            color: var(--primary-color);
+            transition: opacity 0.2s;
+        }
+        .topic-item:hover .check-icon {
+            opacity: 1;
+        }
+
+        /* 하단 마무리 */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn-apply {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 30px;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-apply:hover {
+            transform: scale(1.05);
+            background-color: #ff5252;
+        }
+
+        /* 애니메이션 키프레임 */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-size: 3rem; margin-bottom: 10px;">🤖 💻 🎓</div>
+        <h1>AI로 웹 수업자료 만들기</h1>
+        <p>선생님을 위한 스마트한 수업자료 제작 가이드</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- 목표 섹션 -->
+        <section class="goal-section">
+            <div class="goal-title">🎯 연수 목표</div>
+            <div class="goal-content">
+                "AI를 활용해 다양하고 흥미로운<br><strong>수업자료를 만듭니다.</strong>"
+            </div>
+        </section>
+
+        <!-- 커리큘럼 섹션 -->
+        <h2 style="text-align: center; margin-bottom: 30px; color: #444;">📚 커리큘럼 (순서)</h2>
+        
+        <div class="timeline">
+            
+            <!-- 1차시 -->
+            <div class="session-card">
+                <div class="session-badge">1차시</div>
+                <h3 class="session-title">🌱 기초 다지기</h3>
+                <ul class="topic-list">
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">🧠</span> 구글 AI 스튜디오 이해</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">📄</span> 웹문서 만들기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">📊</span> 웹인포그래픽 만들기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 2차시 -->
+            <div class="session-card">
+                <div class="session-badge">2차시</div>
+                <h3 class="session-title">🛠️ 콘텐츠 제작 심화</h3>
+                <ul class="topic-list">
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">📈</span> 웹대시보드 만들기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">🖥️</span> 웹슬라이드 만들기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">❓</span> 웹퀴즈 만들기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">🔬</span> 웹시뮬레이션 만들기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">🗺️</span> 마인드맵으로 제작하기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 3차시 -->
+            <div class="session-card">
+                <div class="session-badge">3차시</div>
+                <h3 class="session-title">🚀 활용 및 배포</h3>
+                <ul class="topic-list">
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">✏️</span> 웹콘텐츠 수정하기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">🔗</span> 웹콘텐츠 공유하기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">📱</span> 웹 앱 제작하기</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                    <li class="topic-item">
+                        <span class="topic-text"><span class="topic-icon">🎓</span> 마무리 및 회고</span>
+                        <span class="check-icon">✔</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div style="text-align: center;">
+            <a href="#" class="btn-apply" onclick="alert('지금 바로 AI 도구를 실행해보세요!')">🚀 수업자료 만들기 시작</a>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2024 AI Web Class for Teachers. All rights reserved.<br>
+        선생님의 수업 혁신을 응원합니다.</p>
+    </footer>
+
+    <script>
+        // 스크롤 애니메이션 (Intersection Observer API 사용)
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // 한 번만 실행
+                }
+            });
+        }, observerOptions);
+
+        // 모든 세션 카드 관찰 시작
+        document.querySelectorAll('.session-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // 리스트 아이템 클릭 시 약간의 인터랙션 (토글 효과 등 가능, 여기선 색상 반짝임)
+        document.querySelectorAll('.topic-item').forEach(item => {
+            item.addEventListener('click', () => {
+                item.style.backgroundColor = '#d1e7dd';
+                setTimeout(() => {
+                    item.style.backgroundColor = '#f8f9fa';
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>
